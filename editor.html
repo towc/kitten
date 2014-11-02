@@ -13,8 +13,17 @@
             td:hover{
                 cursor:pointer;
             }
-            .visible{
+            .v1{
+                background-color:orange;
+            }
+            .v2{
                 background-color:red;
+            }
+            .v3{
+                background-color:yellow;
+            }
+            .v4{
+                background-color:brown;
             }
         </style>
     </head>
@@ -22,8 +31,8 @@
         <table id=t></table>
         <span id=end></span>
         <script>
-            var width = prompt('width'),
-                height = prompt('height'),
+            var width = prompt('width')||30,
+                height = prompt('height')||20,
                 ar=[];
             
             for(var i=0; i<height; ++i){
@@ -37,22 +46,26 @@
                     tr.appendChild(td);
                     td.id=i+'-'+j;
                     
-                    end.textContent+='0';
-                    if(i===0||i===height-1||j===0||j===width-1){
-                        ar[i].push(1);
-                        td.classList.add('visible');
+                    var n = ((Math.random()*4)|0) + 1;
+                    if(i===0||i===height-1||j===0||j===width-1||Math.random()<0.2){
+                        ar[i].push(n);
+                        td.className = 'v'+n;
+                    } else {
+                        ar[i].push(0);
                     }
-                    else ar[i].push(0);
                     
                     td.addEventListener('click', (function(i, j){
                         return function(){
                             var me = document.getElementById(i+'-'+j);
-                            me.classList.toggle('visible');
-                            ar[i][j] = ar[i][j] ? 0 : 1;
+                            me.className = 'v'+ar[i][j];
+                            ++ar[i][j];
+                            ar[i][j]%=5;
+                            if(ar[i][j]===0) me.className = '';
                             showAr();
                         }
                     })(i, j))
                 }
+                showAr();
             }
             function showAr(){
                 end.textContent='[';

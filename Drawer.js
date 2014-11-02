@@ -6,7 +6,7 @@ function Drawer(game){
     this.ctx = this.canvas.getContext('2d');
     
     this.images = {};
-    this.imgSrcs = ['player'];
+    this.imgSrcs = ['player', 'blocks'];
     
     for(var i = 0; i < this.imgSrcs.length; ++i){
         var img = new Image();
@@ -62,7 +62,7 @@ Drawer.prototype = {
             else x = game.player.size.w * 7 + ((game.player.frame % 3)|0) //7 previous frames, 3 for falling
         }
         
-        ctx.drawImage(this.images.player, x, y, game.player.size.w, game.player.size.h, game.player.pos.x, game.player.pos.y, game.player.size.w, game.player.size.h);
+        ctx.drawImage(this.images.player, x, y, game.player.size.w, game.player.size.h, game.player.pos.x|0, game.player.pos.y|0, game.player.size.w|0, game.player.size.h|0);
         game.player.frame += 0.2;
         
         ctx.fillStyle = 'green';
@@ -79,10 +79,10 @@ Drawer.prototype = {
             bull.frame += 0.1;
         }
         
-        ctx.fillStyle = 'red';
+        //blocks
         for(var i = 0; i < game.map[0].length; ++i){
             for(var j = 0; j < game.map.length; ++j){
-                if(game.map[j][i]) ctx.fillRect(i * game.blockSize, j * game.blockSize, game.blockSize, game.blockSize);
+                if(game.map[j][i] > 0) ctx.drawImage(this.images.blocks, (game.map[j][i]-1)*game.blockSize, 0, game.blockSize, game.blockSize, i * game.blockSize, j * game.blockSize, game.blockSize, game.blockSize);
             }
         }
     }
