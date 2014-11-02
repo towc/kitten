@@ -1,5 +1,5 @@
 function Player(x, y){
-    Body.call(this, x, y, 20, 28, .1, game.gravity*1.6);
+    Body.call(this, x, y, 20, 28, .15, game.gravity*1.6);
     
     this.jumpt = false;
     this.timeSinceLastShoot = 0;
@@ -28,14 +28,16 @@ Player.prototype.shoot = function(){
     
     this.timeSinceLastShoot = 0;
     
-    this.vel.x -= this.dir/2;
+    this.vel.x -= this.dir*this.speed*8;
 }
 
 function Npc(x, y, pow){
-    Body.call(this, x, y, 5, 5, .2, pow);
+    Body.call(this, x, y, 15, 15, .2, pow);
     
     this.wantsToJump=true;
     this.dir=((Math.random()<0.5)-0.5)*2;
+    
+    this.type = (Math.random()*3)|0;
 }
 Npc.prototype = Object.create(Body.prototype);
 
@@ -49,14 +51,16 @@ Npc.prototype.allignX = function(){
 }
 
 function Turret(x, y, dir){
-    Body.call(this, x, y, 10, 10, 0, 0);
+    ProjectileBody.call(this, x, y, 20, 20, Math.random()-0.5, 0);
     
     this.lastShot = Math.random()*100;
     this.dir = dir;
     this.shootSpeed = 3;
     this.accuracy = 10;
+    
+    this.frame = Math.random() < 0.5 ? 0 : .2;
 }
-Turret.prototype = Object.create(Body.prototype);
+Turret.prototype = Object.create(ProjectileBody.prototype);
 
 Turret.prototype.update=function(){
     ++this.lastShot;
@@ -69,11 +73,14 @@ Turret.prototype.shoot = function(){
     
     var err=(Math.random()-0.5)/this.accuracy;
     
-    game.bullets.push(new Bullet(this.pos.x, this.pos.y, Math.cos(this.dir+err)*this.shootSpeed, Math.sin(this.dir+err)*this.shootSpeed, true))
+    game.bullets.push(new Bullet(this.pos.x + this.size.w/2, this.pos.y + this.size.h/2, Math.cos(this.dir+err)*this.shootSpeed, Math.sin(this.dir+err)*this.shootSpeed, true))
+}
+Turret.prototype.stop = function(){
+    this.vel.x *= -1;
 }
 
 function Bullet(x, y, vX, vY, isEnemy){
-    var sizeW = sizeH = 7;
+    var sizeW = sizeH = 9;
     ProjectileBody.call(this, x - sizeW/2, y - sizeH/2, sizeW, sizeH, vX, vY);
     
     this.isEnemy = isEnemy;

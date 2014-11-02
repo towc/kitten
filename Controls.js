@@ -7,6 +7,8 @@ function Controls(){
     this.keys = {};
     this.codes = {};
     
+    this.specials = ['pause', 'reset'];
+    
     for(var name = 0; name < names.length; ++name){
         this.keys[names[name]] = false;
         this.codes[keyCodes[name]] = names[name];
@@ -15,6 +17,11 @@ function Controls(){
 Controls.prototype = {
     press: function(key){
         game.controls.keys[ game.controls.codes[key.keyCode] ] = true;
+        
+        switch(game.controls.codes[key.keyCode]){
+            case 'pause': game.running ? game.pause() : game.unPause(); break;
+            case 'reset': if(!game.running) game.start(true);
+        }
     },
     unPress: function(key){
         game.controls.keys[ game.controls.codes[key.keyCode] ] = false;

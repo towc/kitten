@@ -1,37 +1,34 @@
 function Game(){
-    this.ww = window.innerWidth;
-    this.hh = window.innerHeight;
-    
     this.controls = new Controls();
     
     this.drawer = new Drawer(this);
     
     this.blockSize = 40;
     this.maps = [  
-       
-[[4,1,4,4,3,1,4,1,3,3,1,1,2,1,3,3,2,1,1,4,1,4,2,1,2,2,1,1,4,2],[2,4,2,0,3,0,1,0,0,0,0,1,0,0,0,0,0,4,0,4,0,1,0,4,3,0,1,0,0,4],[1,0,0,0,0,0,0,3,4,0,0,0,0,0,0,0,0,0,0,0,4,0,3,0,0,0,0,0,0,2],[2,4,1,0,0,0,0,4,0,2,0,1,0,0,0,0,1,0,0,0,0,0,0,0,3,0,0,2,0,1],[4,0,0,0,0,0,0,3,0,0,0,0,2,1,0,0,0,0,0,0,0,4,0,0,0,0,3,0,0,2],[2,4,2,0,0,0,0,0,0,3,0,0,0,0,0,0,0,3,0,0,0,2,0,0,0,0,0,0,0,4],[3,4,0,0,0,3,0,0,0,0,0,0,0,3,2,0,2,0,0,2,1,0,0,0,2,3,4,0,0,1],[2,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,4],[3,0,3,3,4,3,0,1,0,0,1,0,0,2,0,0,2,0,0,0,0,0,0,1,0,4,0,4,0,3],[2,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,2,0,0,0,2,0,0,1,0,3],[4,0,0,0,0,0,3,0,3,0,0,4,1,0,0,0,0,0,0,0,2,0,1,0,4,0,0,0,0,4],[4,0,1,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,2,2],[2,2,0,4,1,4,0,4,3,0,1,2,0,0,0,0,0,0,0,0,0,0,0,3,4,0,0,1,0,4],[3,0,0,0,0,0,0,0,0,0,0,0,0,2,4,0,4,4,0,0,0,0,0,0,0,0,0,0,0,4],[1,0,0,0,0,0,0,0,0,0,2,0,0,2,4,0,0,0,0,0,0,2,0,0,0,0,0,0,3,1],[1,0,2,0,4,0,0,0,0,0,0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,0,0,0,0,4],[2,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,2],[3,0,0,2,0,3,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,3,0,2,0,0,0,0,3],[1,0,0,0,0,0,0,0,0,0,0,0,0,4,0,3,0,1,3,0,0,0,0,3,0,2,0,0,0,2],[3,1,2,3,4,1,2,3,2,2,3,1,2,2,2,2,2,2,4,4,1,3,3,4,2,3,4,3,2,4]]
+        genLevel()
     ]
         
-    this.updateMs = 8;
+    this.updateMs = 10;
         
     this.gravity = 0.2;
 }
 Game.prototype = {
     //this is first fired from the drawer on Drawer.js, when all of the images have been loaded
     start: function(loop){
-        this.running = loop;
+        this.controls.keys.reset = false;
         
         this.score = 0;
         
         this.currMap = 0;
         this.map = this.maps[this.currMap];
         
+        this.ww = this.map[0].length*this.blockSize;
+        this.hh = this.map.length   *this.blockSize;
+        
         this.drawer.setLevel();
+        this.drawer.el.gameOver.classList.remove('visible');
         
         this.player = new Player(this.map[0].length * this.blockSize / 2 - 0.5, this.map.length * this.blockSize / 2);
-        
-        this.lastTick = Date.now();
-        this.elapsedTime = 0;
             
         this.npcs=[];
         this.bullets = [];
@@ -52,9 +49,12 @@ Game.prototype = {
             ));
         }
             
-        this.loop();
+        
+        if(loop) this.unPause();
     },
     loop: function(){
+        if(this.controls.keys.reset) return this.start(true);
+        
         //keeps on looping if the game is paused
         if(this.running) window.requestAnimationFrame(this.loop.bind(this));
         else return false;
@@ -64,7 +64,7 @@ Game.prototype = {
     
         
         //check if player is afk or changed tab
-        if(this.elapsedTime > 100 * this.updateMs) return this.running = false;
+        if(this.elapsedTime > 100 * this.updateMs) return this.pause();
         
         while(this.elapsedTime - this.updateMs >= 0){
             
@@ -124,5 +124,36 @@ Game.prototype = {
         this.running = false;
         
         this.drawer.gameOver();
+    },
+    pause: function(){
+        this.running = false;
+        
+        this.drawer.pause();
+    },
+    unPause: function(){
+        this.running = true;
+        this.lastTick = Date.now();
+        this.elapsedTime = 0;
+        
+        this.loop();
+        
+        this.drawer.unPause();
     }
 };
+
+function genLevel(){
+    var ar = [];
+    
+    for(var i = 0; i < 20; ++i){
+        ar.push([]);
+        
+        for(var j = 0; j < 30; ++j){
+            
+            var n = (Math.random() < 0.3 || i === 0 || i === 19 || j === 0 || j === 29) ? ((Math.random()*4)|0)+1 : 0;
+            
+            ar[i].push(n);
+        }
+    }
+    
+    return ar;
+}

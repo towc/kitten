@@ -1,12 +1,6 @@
 function Drawer(game){
-    this.canvas = document.getElementById('c');
-    this.canvas.width = game.ww;
-    this.canvas.height = game.hh;
-    
-    this.ctx = this.canvas.getContext('2d');
-    
     this.images = {};
-    this.imgSrcs = ['player', 'blocks'];
+    this.imgSrcs = ['player', 'blocks', 'turret', 'bullet', 'npc'];
     
     for(var i = 0; i < this.imgSrcs.length; ++i){
         var img = new Image();
@@ -21,7 +15,7 @@ function Drawer(game){
     
     //elements
     this.el={};
-    this.elIds = ['score', 'gameOver'];
+    this.elIds = ['score', 'gameOver','pause'];
     
     for(var i = 0; i < this.elIds.length; ++i){
         this.el[this.elIds[i]] = document.getElementById(this.elIds[i]);
@@ -31,23 +25,24 @@ Drawer.prototype = {
     upLoad: function(){
         ++this.loadedImgs;
         
-        if(this.loadedImgs === this.imgSrcs.length) game.start(true);
+        if(this.loadedImgs === this.imgSrcs.length){
+            game.start(true);
+            game.pause();
+        }
     },
     setLevel: function(){
         
-        var mapW = game.map[0].length,
-            mapH = game.map.length;
-        this.blockProportion = Math.min(
-            game.ww / mapW / game.blockSize,
-            game.hh / mapH / game.blockSize);
-        
-        this.ctx.scale(this.blockProportion, this.blockProportion);
+        this.canvas = document.getElementById('c');
+        this.canvas.width = game.ww|0;
+        this.canvas.height = game.hh|0;
+
+        this.ctx = this.canvas.getContext('2d');
     },
     draw: function(){
         var ctx = this.ctx;
         
         ctx.fillStyle = 'white';
-        ctx.clearRect(0, 0, game.ww / this.blockProportion, game.hh / this.blockProportion);
+        ctx.clearRect(0, 0, game.ww, game.hh);
         
         //player
         //getting the positions in the source spritesheet at img/player.png
@@ -73,23 +68,39 @@ Drawer.prototype = {
         ctx.drawImage(this.images.player, x, y, game.player.size.w, game.player.size.h, game.player.pos.x|0, game.player.pos.y|0, game.player.size.w|0, game.player.size.h|0);
         game.player.frame += 0.2;
         
-        ctx.fillStyle = 'green';
+        //npcs
         for(var i=0; i<game.npcs.length; ++i){
             var npc = game.npcs[i];
-            ctx.fillRect(npc.pos.x, npc.pos.y, npc.size.w, npc.size.h);
+            
+            var y = npc.type * npc.size.h,
+                x = 0;
+            
+            //direction
+            if(npc.vel.x > 0){
+                x += npc.size.w * 4;
+            }
+            //up or down
+            if(npc.vel.y < 0){
+                x += npc.size.w * 2;
+            }
+            
+            //frame
+            x += ((npc.frame%2)|0)*npc.size.w;
+            
+            ctx.drawImage(this.images.npc, x, y, npc.size.w, npc.size.h, npc.pos.x, npc.pos.y, npc.size.w, npc.size.h);
             npc.frame += 0.1;
         }
         
-        ctx.fillStyle = 'black';
         for(var i=0; i < game.enemies.length; ++i){
             var en = game.enemies[i];
-            ctx.fillRect(en.pos.x, en.pos.y, en.size.w, en.size.h);
+            ctx.drawImage(this.images.turret, ((en.frame%2)|0)*en.size.w, 0, en.size.w, en.size.h, en.pos.x|0, en.pos.y|0, en.size.w, en.size.h);
+            
+            en.frame += 0.5;
         }
         
-        ctx.fillStyle = 'gray';
         for(var i=0; i < game.bullets.length; ++i){
             var bull = game.bullets[i];
-            ctx.fillRect(bull.pos.x, bull.pos.y, bull.size.w, bull.size.h);
+            ctx.drawImage(this.images.bullet, bull.isEnemy ? bull.size.w : 0, 0, bull.size.w, bull.size.h, bull.pos.x, bull.pos.y, bull.size.w, bull.size.h);
             
             bull.frame += 0.1;
         }
@@ -102,6 +113,12 @@ Drawer.prototype = {
         }
         
         this.el.score.textContent = game.score;
+    },
+    pause: function(){
+        this.el.pause.classList.add('visible');
+    },
+    unPause: function(){
+        this.el.pause.classList.remove('visible');
     },
     gameOver: function(){
         this.el.gameOver.classList.add('visible');

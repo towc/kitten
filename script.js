@@ -3,6 +3,7 @@
     
     window.addEventListener('load', function(){
         game=new Game();
+        
         window.game = game;
         
         document.addEventListener('keydown', game.controls.press);

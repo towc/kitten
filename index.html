@@ -8,6 +8,7 @@
             position:absolute;
             top:0px; left:0px;
             background-image:url('img/background.png');
+            height:100vh;
         }
         #score:before{
             content:'score: ';
@@ -19,7 +20,7 @@
             left:10px;
             background-color:rgba(0, 0, 0, 0.3);
         }
-        #gameOver{
+        #gameOver, #pause{
             position:absolute;
             top:0px;
             left:0px;
@@ -31,7 +32,10 @@
             opacity:0;
             background-color:white;
         }
-        #gameOver.visible{
+        #pause{
+            line-height:10vh;
+        }
+        #gameOver.visible, #pause.visible{
             opacity:.8;
         }
     </style>
@@ -40,6 +44,13 @@
     <canvas id="c"></canvas>
     <div id="score"></div>
     <div id="gameOver">Game Over!</div>
+    <div id="pause">
+        <p>Arrow keys to move
+        <p>space to shoot
+        <p>R to restart
+        <p>P to pause/unpause
+        <p>kill everything
+    </div>
        
     <script src="Game.js"></script>
     <script src="Controls.js"></script>
