@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Editor</title>
+        <style>
+            td{
+                width:10px;
+                height:10px;
+                background-color:blue;
+                margin:none;
+                padding:none;
+            }
+            td:hover{
+                cursor:pointer;
+            }
+            .visible{
+                background-color:red;
+            }
+        </style>
+    </head>
+    <body>
+        <table id=t></table>
+        <span id=end></span>
+        <script>
+            var width = prompt('width'),
+                height = prompt('height'),
+                ar=[];
+            
+            for(var i=0; i<height; ++i){
+                var tr = document.createElement('tr');
+                t.appendChild(tr);
+                
+                ar.push([]);
+                
+                for(var j=0; j<width; ++j){
+                    var td = document.createElement('td');
+                    tr.appendChild(td);
+                    td.id=i+'-'+j;
+                    
+                    end.textContent+='0';
+                    if(i===0||i===height-1||j===0||j===width-1){
+                        ar[i].push(1);
+                        td.classList.add('visible');
+                    }
+                    else ar[i].push(0);
+                    
+                    td.addEventListener('click', (function(i, j){
+                        return function(){
+                            var me = document.getElementById(i+'-'+j);
+                            me.classList.toggle('visible');
+                            ar[i][j] = ar[i][j] ? 0 : 1;
+                            showAr();
+                        }
+                    })(i, j))
+                }
+            }
+            function showAr(){
+                end.textContent='[';
+                for(var i=0; i<ar.length; ++i){
+                    end.textContent+='[';
+                        for(var j=0; j<ar[i].length; ++j){
+                            end.textContent+=ar[i][j];
+                            if(j<ar[i].length-1) end.textContent+=',';
+                        }
+                    end.textContent+=']';
+                    if(i<ar.length-1) end.textContent+=',';
+                }
+                end.textContent+=']';
+            }
+        </script>
+    </body>
+</html>
