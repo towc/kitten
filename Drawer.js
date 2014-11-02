@@ -18,6 +18,14 @@ function Drawer(game){
     }
     
     this.loadedImgs = 0;
+    
+    //elements
+    this.el={};
+    this.elIds = ['score', 'gameOver'];
+    
+    for(var i = 0; i < this.elIds.length; ++i){
+        this.el[this.elIds[i]] = document.getElementById(this.elIds[i]);
+    }
 }
 Drawer.prototype = {
     upLoad: function(){
@@ -71,6 +79,13 @@ Drawer.prototype = {
             ctx.fillRect(npc.pos.x, npc.pos.y, npc.size.w, npc.size.h);
             npc.frame += 0.1;
         }
+        
+        ctx.fillStyle = 'black';
+        for(var i=0; i < game.enemies.length; ++i){
+            var en = game.enemies[i];
+            ctx.fillRect(en.pos.x, en.pos.y, en.size.w, en.size.h);
+        }
+        
         ctx.fillStyle = 'gray';
         for(var i=0; i < game.bullets.length; ++i){
             var bull = game.bullets[i];
@@ -85,5 +100,10 @@ Drawer.prototype = {
                 if(game.map[j][i] > 0) ctx.drawImage(this.images.blocks, (game.map[j][i]-1)*game.blockSize, 0, game.blockSize, game.blockSize, i * game.blockSize, j * game.blockSize, game.blockSize, game.blockSize);
             }
         }
+        
+        this.el.score.textContent = game.score;
+    },
+    gameOver: function(){
+        this.el.gameOver.classList.add('visible');
     }
 };

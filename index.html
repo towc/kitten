@@ -9,10 +9,38 @@
             top:0px; left:0px;
             background-image:url('img/background.png');
         }
+        #score:before{
+            content:'score: ';
+        }
+        #score{
+            position:absolute;
+            padding:10px;
+            top:calc(100vh - 50px);
+            left:10px;
+            background-color:rgba(0, 0, 0, 0.3);
+        }
+        #gameOver{
+            position:absolute;
+            top:0px;
+            left:0px;
+            width:100vw;
+            height:100vh;
+            text-align:center;
+            line-height:100vh;
+            transition: opacity 1s;
+            opacity:0;
+            background-color:white;
+        }
+        #gameOver.visible{
+            opacity:.8;
+        }
     </style>
 </head>
 <body>
     <canvas id="c"></canvas>
+    <div id="score"></div>
+    <div id="gameOver">Game Over!</div>
+       
     <script src="Game.js"></script>
     <script src="Controls.js"></script>
     <script src="Drawer.js"></script>

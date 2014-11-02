@@ -48,9 +48,35 @@ Npc.prototype.allignX = function(){
     this.dir*=-1;
 }
 
-function Bullet(x, y, vX, vY){
+function Turret(x, y, dir){
+    Body.call(this, x, y, 10, 10, 0, 0);
+    
+    this.lastShot = Math.random()*100;
+    this.dir = dir;
+    this.shootSpeed = 3;
+    this.accuracy = 10;
+}
+Turret.prototype = Object.create(Body.prototype);
+
+Turret.prototype.update=function(){
+    ++this.lastShot;
+    if(this.lastShot>=100) this.shoot();
+    
+    this.updatePos();
+}
+Turret.prototype.shoot = function(){
+    this.lastShot = 0;
+    
+    var err=(Math.random()-0.5)/this.accuracy;
+    
+    game.bullets.push(new Bullet(this.pos.x, this.pos.y, Math.cos(this.dir+err)*this.shootSpeed, Math.sin(this.dir+err)*this.shootSpeed, true))
+}
+
+function Bullet(x, y, vX, vY, isEnemy){
     var sizeW = sizeH = 7;
     ProjectileBody.call(this, x - sizeW/2, y - sizeH/2, sizeW, sizeH, vX, vY);
+    
+    this.isEnemy = isEnemy;
 }
 Bullet.prototype = Object.create(ProjectileBody.prototype);
 
