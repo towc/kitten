@@ -39,7 +39,7 @@ Drawer.prototype = {
         var ctx = this.ctx;
         
         ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, game.ww / this.blockProportion, game.hh / this.blockProportion);
+        ctx.clearRect(0, 0, game.ww / this.blockProportion, game.hh / this.blockProportion);
         
         //player
         //getting the positions in the source spritesheet at img/player.png
