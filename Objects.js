@@ -4,6 +4,8 @@ function Player(x, y){
     this.jumpt = false;
     this.timeSinceLastShoot = 0;
     this.dir = 1;
+    
+    this.isPlayer = true;
 }
 Player.prototype = Object.create(Body.prototype);
 
@@ -101,7 +103,7 @@ function Portal(x, y, dx, dy){
     
     this.destination = {x:dx, y:dy};
     
-    this.type = (Math.random()*10)|0;
+    this.type = (Math.random()*7)|0;
     
     while(game.portalTypes.indexOf(this.type) >= 0 && game.portalTypes.length <= 9){
         this.type = (Math.random()*7)|0;
@@ -116,6 +118,10 @@ Portal.prototype.update = function(){
     
     for(var i = 0; i < ent.length; ++i){
         
-        if(checkCollision(this, ent[i])) ent[i].pos.set(this.destination.x, this.destination.y);
+        if(checkCollision(this, ent[i])){
+            game.transitions.push([ent[i].pos.x, ent[i].pos.y, this.destination.x, this.destination.y, this.type, ent[i].isPlayer ? 40 : 10]);
+            
+            ent[i].pos.set(this.destination.x, this.destination.y);
+        }
     }
 }

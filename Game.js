@@ -36,6 +36,7 @@ Game.prototype = {
         this.portals = [];
         
         this.portalTypes = [];
+        this.transitions = [];
         
         for(var i=0; i<50; ++i){
             this.npcs.push(new Npc(

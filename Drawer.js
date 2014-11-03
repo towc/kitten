@@ -20,6 +20,8 @@ function Drawer(game){
     for(var i = 0; i < this.elIds.length; ++i){
         this.el[this.elIds[i]] = document.getElementById(this.elIds[i]);
     }
+    
+    this.portalColors = ['red', 'green', 'blue', 'purple', 'brown', 'yellow', 'azure'];
 }
 Drawer.prototype = {
     upLoad: function(){
@@ -37,6 +39,7 @@ Drawer.prototype = {
         this.canvas.height = game.hh|0;
 
         this.ctx = this.canvas.getContext('2d');
+        this.ctx.lineCap = 'round';
     },
     draw: function(){
         var ctx = this.ctx;
@@ -54,6 +57,24 @@ Drawer.prototype = {
             ctx.drawImage(this.images.portal, pt.type * pt.size.w, (((pt.frame%2) +2)|0)*pt.size.h , pt.size.w, pt.size.h, pt.destination.x, pt.destination.y, pt.size.w, pt.size.h);
             
             pt.frame += 0.1;
+        }
+        
+        //portal transitions
+        
+        for(var i=0; i < game.transitions.length; ++i){
+            var tr = game.transitions[i];
+            
+            ctx.lineWidth = tr[5];
+            ctx.strokeStyle = this.portalColors[tr[4]];
+            
+            ctx.beginPath();
+            ctx.moveTo(tr[0], tr[1]);
+            ctx.lineTo(tr[2], tr[3]);
+            ctx.stroke();
+            ctx.closePath();
+            
+            --tr[5];
+            if(tr[5] <= 0) game.transitions.splice(i, 1); 
         }
         
         //player
