@@ -21,6 +21,7 @@ Player.prototype.update= function(){
     if(game.controls.keys.shoot && this.timeSinceLastShoot > 10) this.shoot();
     
     ++this.timeSinceLastShoot;
+    
     this.updatePos();
 }
 Player.prototype.shoot = function(){
@@ -93,4 +94,28 @@ Bullet.prototype.update = function(){
 
 Bullet.prototype.stop = function(){
     game.stopBullet(this);
+}
+
+function Portal(x, y, dx, dy){
+    StillBody.call(this, x, y, 40, 50);
+    
+    this.destination = {x:dx, y:dy};
+    
+    this.type = (Math.random()*10)|0;
+    
+    while(game.portalTypes.indexOf(this.type) >= 0 && game.portalTypes.length <= 9){
+        this.type = (Math.random()*7)|0;
+    }
+    
+    game.portalTypes.push(this.type);
+}
+Portal.prototype = Object.create(StillBody.prototype);
+
+Portal.prototype.update = function(){
+    var ent = [game.player].concat(game.npcs, game.bullets, game.enemies);
+    
+    for(var i = 0; i < ent.length; ++i){
+        
+        if(checkCollision(this, ent[i])) ent[i].pos.set(this.destination.x, this.destination.y);
+    }
 }

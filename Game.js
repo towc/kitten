@@ -29,10 +29,13 @@ Game.prototype = {
         this.drawer.el.gameOver.classList.remove('visible');
         
         this.player = new Player(this.map[0].length * this.blockSize / 2 - 0.5, this.map.length * this.blockSize / 2);
-            
+        
         this.npcs=[];
         this.bullets = [];
         this.enemies = [];
+        this.portals = [];
+        
+        this.portalTypes = [];
         
         for(var i=0; i<50; ++i){
             this.npcs.push(new Npc(
@@ -47,6 +50,12 @@ Game.prototype = {
                 Math.random()*(this.map.length-2)   *this.blockSize + this.blockSize,
                 Math.random()*Math.PI*2
             ));
+        }
+        for(var i=0; i<5; ++i){
+            this.portals.push(new Portal(
+                Math.random() * (this.map[0].length - 3) * this.blockSize + this.blockSize, Math.random()*(this.map.length-3)*this.blockSize + this.blockSize,
+                Math.random() * (this.map[0].length - 3) * this.blockSize + this.blockSize, Math.random()*(this.map.length-3)*this.blockSize + this.blockSize
+            ))
         }
             
         
@@ -112,6 +121,10 @@ Game.prototype = {
                     this.score += 2;
                 }
             }
+        }
+        
+        for(var i=0; i<this.portals.length; ++i){
+            this.portals[i].update();
         }
     },
     draw: function(){

@@ -1,6 +1,6 @@
 function Drawer(game){
     this.images = {};
-    this.imgSrcs = ['player', 'blocks', 'turret', 'bullet', 'npc'];
+    this.imgSrcs = ['player', 'blocks', 'turret', 'bullet', 'npc', 'portal'];
     
     for(var i = 0; i < this.imgSrcs.length; ++i){
         var img = new Image();
@@ -43,6 +43,18 @@ Drawer.prototype = {
         
         ctx.fillStyle = 'white';
         ctx.clearRect(0, 0, game.ww, game.hh);
+        
+        
+        //portals
+        for(var i=0; i < game.portals.length; ++i){
+            var pt = game.portals[i];
+            
+            ctx.drawImage(this.images.portal, pt.type * pt.size.w, ((pt.frame%2)|0)*pt.size.h, pt.size.w, pt.size.h, pt.pos.x, pt.pos.y, pt.size.w, pt.size.h);
+            
+            ctx.drawImage(this.images.portal, pt.type * pt.size.w, (((pt.frame%2) +2)|0)*pt.size.h , pt.size.w, pt.size.h, pt.destination.x, pt.destination.y, pt.size.w, pt.size.h);
+            
+            pt.frame += 0.1;
+        }
         
         //player
         //getting the positions in the source spritesheet at img/player.png

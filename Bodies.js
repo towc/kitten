@@ -16,6 +16,10 @@ Vec.prototype = {
     reverseUpdateV: function(v){
         this.x -= v.x;
         this.y -= v.y;
+    },
+    set: function(x, y){
+        this.x = x;
+        this.y = y;
     }
 }
 
@@ -183,4 +187,15 @@ ProjectileBody.prototype = {
         return (val / game.blockSize) | 0;
     },
     stop: function(){}
+}
+
+function StillBody(x, y, w, h){
+    this.pos = new Vec(x, y);
+    
+    this.size = {w:w, h:h};
+    
+    this.frame = 0;
+}
+StillBody.prototype = {
+    
 }
