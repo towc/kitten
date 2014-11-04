@@ -5,12 +5,21 @@ function Game(){
     
     this.blockSize = 40;
     this.maps = [  
-        genLevel()
+
+[[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,1,1,1,1,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,2],[2,2,2,2,4,2,2,2,2,2,4,2,2,2,2,4,2,2,2,2,2,2,4,2,2,2,4,2,2,2]]
     ]
         
     this.updateMs = 10;
         
     this.gravity = 0.2;
+    
+    this.eX = 0;
+    this.eY = 0;
+    
+    document.addEventListener('mousemove', function(e){
+        game.eX = e.clientX / game.drawer.ratio;
+        game.eY = e.clientY / game.drawer.ratio;
+    })
 }
 Game.prototype = {
     //this is first fired from the drawer on Drawer.js, when all of the images have been loaded
@@ -38,27 +47,26 @@ Game.prototype = {
         this.portalTypes = [];
         this.transitions = [];
         
-        for(var i=0; i<50; ++i){
+        for(var i=0; i<0; ++i){
             this.npcs.push(new Npc(
                 Math.random()*(this.map[0].length-2)*this.blockSize + this.blockSize,
                 Math.random()*(this.map.length-2)   *this.blockSize + this.blockSize,
                 this.gravity*Math.random()+game.gravity
             ));
         }
-        for(var i=0; i<10; ++i){
+        for(var i=0; i<3; ++i){
             this.enemies.push(new Turret(
                 Math.random()*(this.map[0].length-2)*this.blockSize + this.blockSize,
                 Math.random()*(this.map.length-2)   *this.blockSize + this.blockSize,
                 Math.random()*Math.PI*2
             ));
         }
-        for(var i=0; i<5; ++i){
+        /*for(var i=0; i<1; ++i){
             this.portals.push(new Portal(
                 Math.random() * (this.map[0].length - 3) * this.blockSize + this.blockSize, Math.random()*(this.map.length-3)*this.blockSize + this.blockSize,
                 Math.random() * (this.map[0].length - 3) * this.blockSize + this.blockSize, Math.random()*(this.map.length-3)*this.blockSize + this.blockSize
             ))
-        }
-            
+        }*/
         
         if(loop) this.unPause();
     },
@@ -75,6 +83,8 @@ Game.prototype = {
         
         //check if player is afk or changed tab
         if(this.elapsedTime > 100 * this.updateMs) return this.pause();
+        
+        this.player.checkShootDir();
         
         while(this.elapsedTime - this.updateMs >= 0){
             
@@ -124,9 +134,11 @@ Game.prototype = {
             }
         }
         
-        for(var i=0; i<this.portals.length; ++i){
+        /*for(var i=0; i<this.portals.length; ++i){
             this.portals[i].update();
-        }
+        }*/
+        if(this.player.portal1) this.player.portal1.update();
+        if(this.player.portal2) this.player.portal2.update();
     },
     draw: function(){
         this.drawer.draw();

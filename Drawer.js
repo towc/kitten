@@ -1,6 +1,6 @@
 function Drawer(game){
     this.images = {};
-    this.imgSrcs = ['player', 'blocks', 'turret', 'bullet', 'npc', 'portal'];
+    this.imgSrcs = ['player', 'blocks', 'turret', 'bullet', 'npc', 'portal', 'aim'];
     
     for(var i = 0; i < this.imgSrcs.length; ++i){
         var img = new Image();
@@ -22,6 +22,10 @@ function Drawer(game){
     }
     
     this.portalColors = ['red', 'green', 'blue', 'purple', 'brown', 'yellow', 'azure'];
+    
+    window.addEventListener('resize', function(){
+        game.drawer.ratio = window.innerHeight/ game.drawer.canvas.height;
+    })
 }
 Drawer.prototype = {
     upLoad: function(){
@@ -37,6 +41,8 @@ Drawer.prototype = {
         this.canvas = document.getElementById('c');
         this.canvas.width = game.ww|0;
         this.canvas.height = game.hh|0;
+        
+        this.ratio = window.innerHeight/ this.canvas.height;
 
         this.ctx = this.canvas.getContext('2d');
         this.ctx.lineCap = 'round';
@@ -49,15 +55,20 @@ Drawer.prototype = {
         
         
         //portals
-        for(var i=0; i < game.portals.length; ++i){
-            var pt = game.portals[i];
-            
-            ctx.drawImage(this.images.portal, pt.type * pt.size.w, ((pt.frame%2)|0)*pt.size.h, pt.size.w, pt.size.h, pt.pos.x, pt.pos.y, pt.size.w, pt.size.h);
-            
-            ctx.drawImage(this.images.portal, pt.type * pt.size.w, (((pt.frame%2) +2)|0)*pt.size.h , pt.size.w, pt.size.h, pt.destination.x, pt.destination.y, pt.size.w, pt.size.h);
-            
-            pt.frame += 0.1;
+        var pt = game.player.portal1;
+        if(pt){
+            //pt.frame+=0.1;
+
+            ctx.drawImage(this.images.portal, 0, ((pt.frame%2)|0)*pt.size.h, pt.size.w, pt.size.h, pt.pos.x, pt.pos.y, pt.size.w, pt.size.h);
         }
+        
+        var pt = game.player.portal2;
+        if(pt){
+            //pt.frame+=0.1;
+
+            ctx.drawImage(this.images.portal, pt.size.w, ((pt.frame%2)|0)*pt.size.h , pt.size.w, pt.size.h, pt.pos.x, pt.pos.y, pt.size.w, pt.size.h);
+        }
+
         
         //portal transitions
         
@@ -144,6 +155,9 @@ Drawer.prototype = {
                 if(game.map[j][i] > 0) ctx.drawImage(this.images.blocks, (game.map[j][i]-1)*game.blockSize, 0, game.blockSize, game.blockSize, i * game.blockSize, j * game.blockSize, game.blockSize, game.blockSize);
             }
         }
+        
+        //aiming thing
+        ctx.drawImage(this.images.aim, 0, 0, 10, 10, game.player.shootX-5, game.player.shootY-5, 10, 10);
         
         this.el.score.textContent = game.score;
     },

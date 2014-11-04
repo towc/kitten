@@ -47,6 +47,8 @@ function Body(x, y, sizeW, sizeH, speed, jumpPower){
     this.wantsToJump = false;
     this.jumpPower = jumpPower;
     
+    this.inPortal;
+    
     this.frame = 0;
 };
 Body.prototype = {
@@ -161,6 +163,8 @@ function ProjectileBody(x, y, w, h, sX, sY){
     
     this.size={w:w, h:h};
     
+    this.inPortal;
+    
     this.frame = 0;
 }
 ProjectileBody.prototype = {
@@ -193,6 +197,8 @@ function StillBody(x, y, w, h){
     this.pos = new Vec(x, y);
     
     this.size = {w:w, h:h};
+    
+    this.inPortal;
     
     this.frame = 0;
 }

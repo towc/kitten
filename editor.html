@@ -14,16 +14,16 @@
                 cursor:pointer;
             }
             .v1{
-                background-color:orange;
+                background-color:lightgray;
             }
             .v2{
-                background-color:red;
+                background-color:black;
             }
             .v3{
-                background-color:yellow;
+                background-color:lime;
             }
             .v4{
-                background-color:brown;
+                background-color:green;
             }
         </style>
     </head>
@@ -46,8 +46,8 @@
                     tr.appendChild(td);
                     td.id=i+'-'+j;
                     
-                    var n = ((Math.random()*4)|0) + 1;
-                    if(i===0||i===height-1||j===0||j===width-1||Math.random()<0.2){
+                    var n = 2;
+                    if(i===0||i===height-1||j===0||j===width-1){
                         ar[i].push(n);
                         td.className = 'v'+n;
                     } else {
@@ -57,9 +57,11 @@
                     td.addEventListener('click', (function(i, j){
                         return function(){
                             var me = document.getElementById(i+'-'+j);
-                            me.className = 'v'+ar[i][j];
+                            
                             ++ar[i][j];
                             ar[i][j]%=5;
+                            
+                            me.className = 'v'+ar[i][j];
                             if(ar[i][j]===0) me.className = '';
                             showAr();
                         }

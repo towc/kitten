@@ -8,5 +8,5 @@
         
         document.addEventListener('keydown', game.controls.press);
         document.addEventListener('keyup', game.controls.unPress);
-    })
+    });
 })();

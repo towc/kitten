@@ -1,8 +1,8 @@
 function Controls(){
     
     //just so that I don't have to manually create 2 objects, I can just create them procedurally
-    var names = ['left', 'up', 'right', 'down', 'shoot', 'pause', 'reset'];
-    var keyCodes = [37, 38, 39, 40, 32, 80, 82];
+    var names = ['left', 'up', 'right', 'down', 'shoot', 'pause', 'reset', 'throwP1', 'throwP2'];
+    var keyCodes = [37, 38, 39, 40, 32, 80, 82, 81, 65];
     
     this.keys = {};
     this.codes = {};
@@ -20,7 +20,9 @@ Controls.prototype = {
         
         switch(game.controls.codes[key.keyCode]){
             case 'pause': game.running ? game.pause() : game.unPause(); break;
-            case 'reset': if(!game.running) game.start(true);
+            case 'reset': if(!game.running) game.start(true); break;
+            case 'throwP1': if(game.running) game.player.createPortal1(); break;
+            case 'throwP2': if(game.running) game.player.createPortal2(); break;
         }
     },
     unPress: function(key){
