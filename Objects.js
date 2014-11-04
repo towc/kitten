@@ -16,6 +16,8 @@ function Player(x, y){
     
     this.portal1; 
     this.portal2;
+    
+    this.portalBullets = [];
 }
 Player.prototype = Object.create(Body.prototype);
 
@@ -33,6 +35,10 @@ Player.prototype.update= function(){
     if(game.controls.keys.shoot && this.timeSinceLastShoot > 10) this.shoot();
     
     ++this.timeSinceLastShoot;
+    
+    for(var i = 0; i < this.portalBullets.length; ++i){
+        this.portalBullets[i].updatePos();
+    }
     
     this.updatePos();
 }
@@ -57,17 +63,39 @@ Player.prototype.shoot = function(){
     
     this.vel.x -= Math.cos(rad)*this.bulletSpeed/10;
 }
-
-Player.prototype.createPortal1 = function(){
-    this.portal1 = new Portal(this.shootX, this.shootY);
+Player.prototype.shootPortal = function(which){
+    this.portalBullets.push(new PortalBullet(this, which));
+}
+Player.prototype.createPortal1 = function(bull, side){
+    var x = bull.lastX * game.blockSize,
+        y = bull.lastY * game.blockSize;
+    
+    switch(side){
+        case 'top': y -= 3; break;
+        case 'right': x += game.blockSize; break;
+        case 'bottom': y += game.blockSize; break;
+        case 'left': x -= 3; break;
+    }
+    
+    this.portal1 = new Portal(x, y, side);
     
     if(this.portal2){
         this.portal2.connect(this.portal1);
         this.portal1.connect(this.portal2);
     }
 }
-Player.prototype.createPortal2 = function(){
-    this.portal2 = new Portal(this.shootX, this.shootY);
+Player.prototype.createPortal2 = function(bull, side){
+    var x = bull.lastX * game.blockSize,
+        y = bull.lastY * game.blockSize;
+    
+    switch(side){
+        case 'top': y -= 3; break;
+        case 'right': x += game.blockSize; break;
+        case 'bottom': y += game.blockSize; break;
+        case 'left': x -= 3; break;
+    }
+    
+    this.portal2 = new Portal(x, y, side);
     
     if(this.portal1){
         this.portal1.connect(this.portal2);
@@ -139,20 +167,19 @@ Bullet.prototype.stop = function(){
     game.stopBullet(this);
 }
 
-function Portal(x, y){
-    StillBody.call(this, x, y, 30, 60);
+function Portal(x, y, side){
+    this.side = side;
+    console.log(side);
+    var w = ['top', 'bottom'].indexOf(side) > -1 ? game.blockSize : 3,
+        h = ['left', 'right'].indexOf(side) > -1 ? game.blockSize * 2 : 3;
+    StillBody.call(this, x, y, w, h);
     
-    this.destination = this;
+    this.destination = false;
     
-    this.center = {x:this.pos.x + this.size.w/2, y:this.pos.y + this.size.h/2}
+    this.center = {x:this.pos.x + this.size.w/2, y:this.pos.y + this.size.h/2};
     
-    this.type = 1 //(Math.random()*7)|0;
-    
-    /*while(game.portalTypes.indexOf(this.type) >= 0 && game.portalTypes.length <= 9){
-        this.type = (Math.random()*7)|0;
-    }*/
-    
-    //game.portalTypes.push(this.type);
+    this.rot = ['top', 'right', 'bottom', 'left'].indexOf(side);
+    this.finalRot = 0;
 }
 Portal.prototype = Object.create(StillBody.prototype);
 
@@ -165,8 +192,43 @@ Portal.prototype.update = function(){
         if(checkCollision(this, ent[i]) && ent[i].inPortal !== this){
             game.transitions.push([ent[i].pos.x, ent[i].pos.y, this.destination.center.x, this.destination.center.y, this.type, ent[i].isPlayer ? 40 : 10]);
             
-            ent[i].pos.set(this.destination.center.x - ent[i].size.w/2, this.destination.center.y - ent[i].size.h/2);
+            var x = this.destination.pos.x, y = this.destination.pos.y;
+            switch(this.destination.rot){
+                case 'top': y -= ent[i].size.h; break;
+                case 'right': x += 0.1; break;
+                case 'bottom': y += 0.1; break;
+                case 'left': x -= ent[i].size.w; break;
+            }
+            ent[i].pos.set(x, y);
             ent[i].inPortal = this.destination;
+            
+            //changing entities' velocity
+            var dir = Math.atan(ent[i].vel.y / ent[i].vel.x);
+            
+            if(isNaN(dir)) dir = 0;
+            
+            if(ent[i].vel.x < 0) dir *= -1;
+            
+            var dist = Math.sqrt(ent[i].vel.x * ent[i].vel.x + ent[i].vel.y * ent[i].vel.y);
+            dir += (Math.PI*2 / this.finalRot);
+            
+            ent[i].vel.x = Math.cos(dir) * dist;
+            ent[i].vel.y = Math.sin(dir) * dist;
+            
+            //changing entities' accelleration
+            if(!ent[i].acc) return;
+            dir = Math.atan(ent[i].acc.y / ent[i].acc.x);
+            
+            if(isNaN(dir)) dir = 0;
+            
+            if(ent[i].acc.x < 0) dir *= -1;
+            
+            dist = Math.sqrt(ent[i].acc.x * ent[i].acc.x + ent[i].acc.y * ent[i].acc.y);
+            dir += (Math.PI*2 / this.finalRot);
+            
+            ent[i].acc.x = Math.cos(dir) * dist;
+            ent[i].acc.y = Math.sin(dir) * dist;
+            
         } else if(!checkCollision(this, ent[i]) && ent[i].inPortal === this) {
             ent[i].inPortal = false;
         }
@@ -174,4 +236,20 @@ Portal.prototype.update = function(){
 }
 Portal.prototype.connect = function(p2){
     this.destination = p2;
+    
+    this.finalRot = (10 + this.destination.rot - this.rot)%4;
+}
+
+function PortalBullet(par, prop){
+    ProjectileBody.call(this, par.pos.x + par.size.w/2, par.pos.y + par.size.h/2, 9, 9, Math.cos(par.shootDir) * 5, Math.sin(par.shootDir) * 5);
+    
+    this.par = par; //parent
+    this.prop = prop; //property
+}
+PortalBullet.prototype = Object.create(ProjectileBody.prototype);
+
+PortalBullet.prototype.stop = function(side){
+    this.par['createPortal' + this.prop](this, side);
+    
+    this.par.portalBullets.splice(this.par.portalBullets.indexOf(this), 1);
 }

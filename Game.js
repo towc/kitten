@@ -31,6 +31,8 @@ Game.prototype = {
         this.currMap = 0;
         this.map = this.maps[this.currMap];
         
+        this.transparent = [0];
+        
         this.ww = this.map[0].length*this.blockSize;
         this.hh = this.map.length   *this.blockSize;
         

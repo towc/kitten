@@ -58,25 +58,49 @@ Drawer.prototype = {
         var pt = game.player.portal1;
         if(pt){
             //pt.frame+=0.1;
-
-            ctx.drawImage(this.images.portal, 0, ((pt.frame%2)|0)*pt.size.h, pt.size.w, pt.size.h, pt.pos.x, pt.pos.y, pt.size.w, pt.size.h);
+            var x, y;
+            
+            switch(pt.side){
+                case 'bottom': x = 0; y = 0; break;
+                case 'top': x = 0; y = 3; break;
+                case 'right': x = 0; y = 6; break;
+                case 'left': x = 3; y = 6; break;
+            }
+            
+            ctx.drawImage(this.images.portal, x, y, pt.size.w, pt.size.h, pt.pos.x, pt.pos.y, pt.size.w, pt.size.h);
         }
         
         var pt = game.player.portal2;
         if(pt){
             //pt.frame+=0.1;
-
-            ctx.drawImage(this.images.portal, pt.size.w, ((pt.frame%2)|0)*pt.size.h , pt.size.w, pt.size.h, pt.pos.x, pt.pos.y, pt.size.w, pt.size.h);
+            var x, y;
+            
+            switch(pt.side){
+                case 'bottom': x = game.blockSize; y = 0; break;
+                case 'top': x = game.blockSize; y = 3; break;
+                case 'right': x = game.blockSize; y = 6; break;
+                case 'left': x = game.blockSize +3; y = 6; break;
+            }
+            
+            ctx.drawImage(this.images.portal, x, y, pt.size.w, pt.size.h, pt.pos.x, pt.pos.y, pt.size.w, pt.size.h);
         }
-
+        
+        //portal bullets
+        for(var i = 0; i < game.player.portalBullets.length; ++i){
+            var bull = game.player.portalBullets[i];
+            
+            ctx.drawImage(this.images.bullet, ((bull.frame%2)|0)*bull.size.w, bull.size.h, bull.size.w, bull.size.h, bull.pos.x, bull.pos.y, bull.size.w, bull.size.h);
+            
+            bull.frame += 0.1;
+        }
         
         //portal transitions
         
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
         for(var i=0; i < game.transitions.length; ++i){
             var tr = game.transitions[i];
             
             ctx.lineWidth = tr[5];
-            ctx.strokeStyle = this.portalColors[tr[4]];
             
             ctx.beginPath();
             ctx.moveTo(tr[0], tr[1]);

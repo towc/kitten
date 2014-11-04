@@ -21,8 +21,8 @@ Controls.prototype = {
         switch(game.controls.codes[key.keyCode]){
             case 'pause': game.running ? game.pause() : game.unPause(); break;
             case 'reset': if(!game.running) game.start(true); break;
-            case 'throwP1': if(game.running) game.player.createPortal1(); break;
-            case 'throwP2': if(game.running) game.player.createPortal2(); break;
+            case 'throwP1': if(game.running) game.player.shootPortal(1); break;
+            case 'throwP2': if(game.running) game.player.shootPortal(2); break;
         }
     },
     unPress: function(key){

@@ -166,6 +166,9 @@ function ProjectileBody(x, y, w, h, sX, sY){
     this.inPortal;
     
     this.frame = 0;
+    
+    this.lastX = 0;
+    this.lastY = 0;
 }
 ProjectileBody.prototype = {
     jump: function(){
@@ -185,12 +188,27 @@ ProjectileBody.prototype = {
         var blockX = this.getBlock(this.pos.x + this.size.w/2);
         var blockY = this.getBlock(this.pos.y + this.size.h/2);
         
-        if(game.map[blockY][blockX]) this.stop();
+        
+        if(game.transparent.indexOf(game.map[blockY][blockX]) === -1){
+            var side = 'bottom';
+            
+            if(this.lastX < blockX) side = 'left';
+            else if(this.lastX > blockX) side = 'right';
+            else if(this.lastY < blockY) side = 'top';
+            
+            this.lastX = blockX;
+            this.lastY = blockY;
+            
+            this.stop(side);
+        }
+        
+        this.lastX = blockX;
+        this.lastY = blockY;
     },
     getBlock: function(val){
         return (val / game.blockSize) | 0;
     },
-    stop: function(){}
+    stop: function(){} 
 }
 
 function StillBody(x, y, w, h){
